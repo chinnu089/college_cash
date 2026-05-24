@@ -130,8 +130,4 @@ Visit: **http://127.0.0.1:5000**
 
 ---
 
-## 📝 Notes for Viva
 
-- The matching algorithm uses the **Haversine formula** to compute great-circle distance between lat/lon coordinates.
-- Transactions use `conn.start_transaction()` + `conn.commit()` / `conn.rollback()` to ensure **ACID compliance**.
-- Passwords are stored in plain text for simplicity (for production use `bcrypt` hashing).
