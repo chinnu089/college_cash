@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}New Request – College Cash{% endblock %}
+{% block content %}
+<div class="page" style="max-width:560px;">
+
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% if msgs %}
+      <ul class="flash-list">
+        {% for cat, msg in msgs %}
+          <li class="flash-item flash-{{ cat }}">{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <div class="page-header">
+    <h1>New Exchange Request</h1>
+    <p>Tell others what you need and get matched nearby</p>
+  </div>
+
+  <div class="card">
+    <form method="POST" action="{{ url_for('create_request') }}">
+
+      <div class="form-group">
+        <label>🔄 Request Type</label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:.75rem; margin-top:.25rem;">
+          <label class="type-option" for="need_cash">
+            <input type="radio" id="need_cash" name="request_type" value="need_cash" required>
+            <div class="type-box">
+              <span style="font-size:1.4rem;">💵</span>
+              <span class="type-title">Need Cash</span>
+              <span class="type-desc">I'll pay via UPI</span>
+            </div>
+          </label>
+          <label class="type-option" for="need_upi">
+            <input type="radio" id="need_upi" name="request_type" value="need_upi" required>
+            <div class="type-box">
+              <span style="font-size:1.4rem;">📲</span>
+              <span class="type-title">Need UPI</span>
+              <span class="type-desc">I'll give cash</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="amount">💰 Amount (₹)</label>
+        <input type="number" id="amount" name="amount" min="10" max="10000" step="0.01"
+               placeholder="e.g. 500" required>
+      </div>
+
+      <div class="form-group">
+        <label>📍 Your Location</label>
+        <div style="display:flex; gap:.75rem;">
+          <div style="flex:1">
+            <input type="number" id="latitude"  name="latitude"  step="0.0001"
+                   placeholder="Latitude"  value="12.9716">
+          </div>
+          <div style="flex:1">
+            <input type="number" id="longitude" name="longitude" step="0.0001"
+                   placeholder="Longitude" value="77.5946">
+          </div>
+        </div>
+        <button type="button" onclick="getLocation()" class="btn btn-secondary btn-sm" style="margin-top:.6rem;">
+          🌐 Use My Location
+        </button>
+        <div id="loc-status" style="font-size:.8rem; color:var(--muted); margin-top:.35rem;"></div>
+      </div>
+
+      <hr class="divider">
+
+      <button type="submit" class="btn btn-primary btn-full">Post Request 🚀</button>
+    </form>
+  </div>
+</div>
+
+<style>
+.type-option { cursor: pointer; }
+.type-option input[type=radio] { display:none; }
+.type-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .3rem;
+  padding: 1.1rem .75rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface2);
+  text-align: center;
+  transition: all .2s;
+}
+.type-option input:checked + .type-box {
+  border-color: var(--accent);
+  background: rgba(0,229,160,.08);
+}
+.type-title { font-family:'Syne',sans-serif; font-weight:700; font-size:.88rem; }
+.type-desc  { font-size:.75rem; color:var(--muted); }
+</style>
+
+<script>
+function getLocation() {
+  const status = document.getElementById('loc-status');
+  if (!navigator.geolocation) { status.textContent = 'Geolocation not supported.'; return; }
+  status.textContent = 'Fetching location…';
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      document.getElementById('latitude').value  = pos.coords.latitude.toFixed(6);
+      document.getElementById('longitude').value = pos.coords.longitude.toFixed(6);
+      status.textContent = '✅ Location captured!';
+      status.style.color = 'var(--accent)';
+    },
+    () => { status.textContent = '❌ Unable to get location. Default (Bengaluru) used.'; }
+  );
+}
+</script>
+{% endblock %}

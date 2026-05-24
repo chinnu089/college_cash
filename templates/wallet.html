@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Wallet – College Cash{% endblock %}
+{% block content %}
+<div class="page" style="max-width:640px;">
+
+  <div class="page-header">
+    <h1>👛 My Wallet</h1>
+    <p>Your current cash and UPI balances</p>
+  </div>
+
+  <div class="stat-grid" style="margin-bottom:1.5rem;">
+    <div class="stat-card">
+      <div class="stat-label">💵 Cash Balance</div>
+      <div class="stat-value cash">₹{{ "%.2f"|format(user.cash_balance) }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">📲 UPI Balance</div>
+      <div class="stat-value upi">₹{{ "%.2f"|format(user.upi_balance) }}</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🏦 Total Balance</div>
+    <div style="font-family:'Syne',sans-serif; font-size:2.8rem; font-weight:800; color:var(--accent);">
+      ₹{{ "%.2f"|format(user.cash_balance + user.upi_balance) }}
+    </div>
+    <p style="color:var(--muted); margin-top:.5rem; font-size:.88rem;">
+      Combined wallet value across cash and UPI
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">👤 Account Info</div>
+    <table>
+      <tr>
+        <td style="color:var(--muted); width:140px;">Name</td>
+        <td><strong>{{ user.name }}</strong></td>
+      </tr>
+      <tr>
+        <td style="color:var(--muted);">Phone</td>
+        <td>{{ user.phone }}</td>
+      </tr>
+      <tr>
+        <td style="color:var(--muted);">Cash</td>
+        <td style="color:var(--accent3);">₹{{ "%.2f"|format(user.cash_balance) }}</td>
+      </tr>
+      <tr>
+        <td style="color:var(--muted);">UPI</td>
+        <td style="color:var(--accent2);">₹{{ "%.2f"|format(user.upi_balance) }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div style="display:flex; gap:.75rem; flex-wrap:wrap;">
+    <a href="{{ url_for('create_request') }}" class="btn btn-primary">➕ New Exchange Request</a>
+    <a href="{{ url_for('transactions') }}"   class="btn btn-secondary">📜 Transaction History</a>
+  </div>
+
+</div>
+{% endblock %}

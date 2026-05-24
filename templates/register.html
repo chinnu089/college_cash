@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Register – College Cash{% endblock %}
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <h1>💸 CollegeCash</h1>
+      <p>Create your student account</p>
+    </div>
+
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% if msgs %}
+        <ul class="flash-list">
+          {% for cat, msg in msgs %}
+            <li class="flash-item flash-{{ cat }}">{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('register') }}">
+      <div class="form-group">
+        <label for="name">👤 Full Name</label>
+        <input id="name"     name="name"     type="text"     placeholder="e.g. Arjun Sharma" required>
+      </div>
+      <div class="form-group">
+        <label for="phone">📱 Phone Number</label>
+        <input id="phone"    name="phone"    type="tel"      placeholder="10-digit mobile" maxlength="15" required>
+      </div>
+      <div class="form-group">
+        <label for="password">🔒 Password</label>
+        <input id="password" name="password" type="password" placeholder="Choose a password" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Create Account →</button>
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

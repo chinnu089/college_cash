@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Nearby Matches – College Cash{% endblock %}
+{% block content %}
+<div class="page">
+
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% if msgs %}
+      <ul class="flash-list">
+        {% for cat, msg in msgs %}
+          <li class="flash-item flash-{{ cat }}">{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <div class="page-header">
+    <h1>🔍 Nearby Matches</h1>
+    <p>Students within 5 km who need the opposite of you</p>
+  </div>
+
+  {% if not my_requests %}
+    <div class="card">
+      <div class="empty-state">
+        <div class="icon">📭</div>
+        <h3>No active requests</h3>
+        <p>Create an exchange request first to see matches.</p>
+        <a href="{{ url_for('create_request') }}" class="btn btn-primary" style="margin-top:1rem;">Create Request →</a>
+      </div>
+    </div>
+
+  {% elif not matches %}
+    <div class="card">
+      <div class="empty-state">
+        <div class="icon">🔭</div>
+        <h3>No matches found nearby</h3>
+        <p>There are no users with opposing requests within 5 km. Check back soon!</p>
+      </div>
+    </div>
+
+  {% else %}
+    <p style="color:var(--muted); font-size:.88rem; margin-bottom:1.25rem;">
+      Found <strong style="color:var(--accent)">{{ matches|length }}</strong> potential match{{ 'es' if matches|length != 1 }}.
+    </p>
+
+    {% for m in matches %}
+      <div class="match-card">
+        <div class="match-info">
+          <h3>{{ m.their_name }}</h3>
+          <p>
+            <span class="type-pill {{ 'type-cash' if m.their_type == 'need_cash' else 'type-upi' }}">
+              {{ '💵 Needs Cash' if m.their_type == 'need_cash' else '📲 Needs UPI' }}
+            </span>
+            &nbsp;·&nbsp;
+            <span style="color:var(--muted);">📞 {{ m.their_phone }}</span>
+          </p>
+          <p class="match-dist">📍 {{ m.distance_km }} km away &nbsp;·&nbsp; Request #{{ m.their_request_id }}</p>
+        </div>
+
+        <div style="text-align:right;">
+          <div class="match-amount">₹{{ "%.2f"|format(m.amount) }}</div>
+          <div style="margin-top:.6rem;">
+            <form method="POST" action="{{ url_for('confirm_transaction') }}"
+                  onsubmit="return confirm('Confirm ₹{{ '%.2f'|format(m.amount) }} exchange with {{ m.their_name }}?')">
+              <input type="hidden" name="my_request_id"    value="{{ m.my_request_id }}">
+              <input type="hidden" name="their_request_id" value="{{ m.their_request_id }}">
+              <input type="hidden" name="amount"           value="{{ m.amount }}">
+              <button type="submit" class="btn btn-primary btn-sm">✅ Confirm Exchange</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- All open requests from my side -->
+  {% if my_requests %}
+    <div class="card" style="margin-top:2rem;">
+      <div class="card-title">📋 Your Open Requests</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Posted</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in my_requests %}
+              <tr>
+                <td>{{ r.request_id }}</td>
+                <td>
+                  <span class="badge badge-{{ r.request_type }}">
+                    {{ 'Need Cash' if r.request_type == 'need_cash' else 'Need UPI' }}
+                  </span>
+                </td>
+                <td>₹{{ "%.2f"|format(r.amount) }}</td>
+                <td>{{ r.created_at.strftime('%d %b %Y') if r.created_at else '—' }}</td>
+                <td>
+                  <form method="POST" action="{{ url_for('cancel_request', req_id=r.request_id) }}"
+                        onsubmit="return confirm('Cancel request #{{ r.request_id }}?')">
+                    <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

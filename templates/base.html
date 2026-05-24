@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}College Cash{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+{% if session.user_id %}
+<nav>
+  <a class="nav-brand" href="{{ url_for('dashboard') }}">💸 <span>College</span>Cash</a>
+  <div class="nav-links">
+    <a href="{{ url_for('dashboard') }}"       {% if request.endpoint=='dashboard'       %}class="active"{% endif %}>Dashboard</a>
+    <a href="{{ url_for('wallet') }}"          {% if request.endpoint=='wallet'          %}class="active"{% endif %}>Wallet</a>
+    <a href="{{ url_for('create_request') }}"  {% if request.endpoint=='create_request'  %}class="active"{% endif %}>New Request</a>
+    <a href="{{ url_for('matches') }}"         {% if request.endpoint=='matches'         %}class="active"{% endif %}>Matches</a>
+    <a href="{{ url_for('transactions') }}"    {% if request.endpoint=='transactions'    %}class="active"{% endif %}>History</a>
+    <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+  </div>
+</nav>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+</body>
+</html>

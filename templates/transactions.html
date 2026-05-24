@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Transactions – College Cash{% endblock %}
+{% block content %}
+<div class="page">
+
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% if msgs %}
+      <ul class="flash-list">
+        {% for cat, msg in msgs %}
+          <li class="flash-item flash-{{ cat }}">{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <div class="page-header">
+    <h1>📜 Transaction History</h1>
+    <p>All your completed exchanges</p>
+  </div>
+
+  <div class="card">
+    {% if txns %}
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>With</th>
+              <th>Direction</th>
+              <th>Amount</th>
+              <th>Date & Time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in txns %}
+              {% set is_user1 = (t.user1_id == current_user_id) %}
+              <tr>
+                <td style="color:var(--muted);">#{{ t.transaction_id }}</td>
+                <td>
+                  <strong>{{ t.user2_name if is_user1 else t.user1_name }}</strong>
+                </td>
+                <td>
+                  {% if is_user1 %}
+                    <span class="badge badge-need_upi">You → {{ t.user2_name.split()[0] }}</span>
+                  {% else %}
+                    <span class="badge badge-need_cash">{{ t.user1_name.split()[0] }} → You</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span style="font-family:'Syne',sans-serif; font-weight:800; font-size:1rem; color:var(--accent);">
+                    ₹{{ "%.2f"|format(t.amount) }}
+                  </span>
+                </td>
+                <td style="color:var(--muted); font-size:.85rem;">
+                  {{ t.transaction_time.strftime('%d %b %Y, %I:%M %p') if t.transaction_time else '—' }}
+                </td>
+                <td>
+                  <span class="badge badge-{{ t.status }}">{{ t.status }}</span>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid var(--border);
+                  display:flex; gap:2rem; font-size:.88rem; color:var(--muted);">
+        <div>
+          Total transactions: <strong style="color:var(--text);">{{ txns|length }}</strong>
+        </div>
+        <div>
+          Total volume: <strong style="color:var(--accent);">
+            ₹{{ "%.2f"|format(txns|sum(attribute='amount')) }}
+          </strong>
+        </div>
+      </div>
+
+    {% else %}
+      <div class="empty-state">
+        <div class="icon">💳</div>
+        <h3>No transactions yet</h3>
+        <p>Complete an exchange to see your history here.</p>
+        <a href="{{ url_for('matches') }}" class="btn btn-primary" style="margin-top:1rem;">Find Matches →</a>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

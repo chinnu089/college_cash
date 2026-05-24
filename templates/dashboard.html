@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – College Cash{% endblock %}
+{% block content %}
+<div class="page">
+
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% if msgs %}
+      <ul class="flash-list">
+        {% for cat, msg in msgs %}
+          <li class="flash-item flash-{{ cat }}">{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <div class="page-header">
+    <h1>Hey, {{ user.name.split()[0] }} 👋</h1>
+    <p>Here's your exchange overview</p>
+  </div>
+
+  <!-- Wallet Snapshot -->
+  <div class="section">
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">💵 Cash Balance</div>
+        <div class="stat-value cash">₹{{ "%.2f"|format(user.cash_balance) }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">📲 UPI Balance</div>
+        <div class="stat-value upi">₹{{ "%.2f"|format(user.upi_balance) }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">🏦 Total Balance</div>
+        <div class="stat-value total">₹{{ "%.2f"|format(user.cash_balance + user.upi_balance) }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="section">
+    <div class="card">
+      <div class="card-title">⚡ Quick Actions</div>
+      <div style="display:flex; gap:.75rem; flex-wrap:wrap;">
+        <a href="{{ url_for('create_request') }}" class="btn btn-primary">➕ New Request</a>
+        <a href="{{ url_for('matches') }}"        class="btn btn-secondary">🔍 Find Matches</a>
+        <a href="{{ url_for('wallet') }}"          class="btn btn-secondary">👛 Wallet Details</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+
+    <!-- My Active Requests -->
+    <div class="card">
+      <div class="card-title">📋 My Requests</div>
+      {% if my_requests %}
+        {% for r in my_requests %}
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:.6rem 0; border-bottom:1px solid var(--border);">
+            <div>
+              <span class="badge badge-{{ r.request_type }}">
+                {{ '💵 Need Cash' if r.request_type == 'need_cash' else '📲 Need UPI' }}
+              </span>
+              <div style="margin-top:.3rem; font-size:.82rem; color:var(--muted);">
+                ₹{{ "%.2f"|format(r.amount) }} &nbsp;·&nbsp;
+                {{ r.created_at.strftime('%d %b, %I:%M %p') if r.created_at else '—' }}
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:.5rem;">
+              <span class="badge badge-{{ r.status }}">{{ r.status }}</span>
+              {% if r.status == 'open' %}
+                <form method="POST" action="{{ url_for('cancel_request', req_id=r.request_id) }}"
+                      onsubmit="return confirm('Cancel this request?')">
+                  <button type="submit" class="btn btn-danger btn-sm">✕</button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state" style="padding:1.5rem 0">
+          <div class="icon">📭</div>
+          <p>No active requests. <a href="{{ url_for('create_request') }}" style="color:var(--accent)">Create one!</a></p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="card">
+      <div class="card-title">🕓 Recent Transactions</div>
+      {% if recent_txns %}
+        {% for t in recent_txns %}
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:.6rem 0; border-bottom:1px solid var(--border);">
+            <div>
+              <div style="font-weight:600; font-size:.9rem;">{{ t.user1_name }} ↔ {{ t.user2_name }}</div>
+              <div style="font-size:.8rem; color:var(--muted);">
+                {{ t.transaction_time.strftime('%d %b, %I:%M %p') if t.transaction_time else '—' }}
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:'Syne',sans-serif; font-weight:800; color:var(--accent);">₹{{ "%.2f"|format(t.amount) }}</div>
+              <span class="badge badge-{{ t.status }}">{{ t.status }}</span>
+            </div>
+          </div>
+        {% endfor %}
+        <div style="margin-top:1rem;">
+          <a href="{{ url_for('transactions') }}" class="btn btn-secondary btn-sm">View All →</a>
+        </div>
+      {% else %}
+        <div class="empty-state" style="padding:1.5rem 0">
+          <div class="icon">💳</div>
+          <p>No transactions yet.</p>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}
